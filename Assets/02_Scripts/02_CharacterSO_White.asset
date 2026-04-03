@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6c7d61c586b7374ab1563ffb2bb19e1, type: 3}
+  m_Name: 02_CharacterSO_White
+  m_EditorClassIdentifier: 
+  characterID: 1
+  characterController: {fileID: 22100000, guid: 811fd2a63641ad642873bcfdaa0c707f, type: 2}
+  characterColor: {r: 1, g: 1, b: 1, a: 1}
+  key: 1
+  characterName: "\uD770\uB0E5\uC774"
+  icon: {fileID: -2013704667970305717, guid: 456776a80c619f64697d85b3c34cc70b, type: 3}
+  cDescription: "\uC6D0\uAC70\uB9AC \uACF5\uACA9"
+  baseWeaponKey: 2
+  characterSpeed: 1.1
+  weaponSpeed: 1.1
+  weaponRate: 1
+  damage: 1
+  weaponCount: 0

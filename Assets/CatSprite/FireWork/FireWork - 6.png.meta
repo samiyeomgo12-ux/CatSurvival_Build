@@ -1,0 +1,232 @@
+fileFormatVersion: 2
+guid: 5e6c9e148ae59ce4cbad807ab9b7879e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 166619810880335093
+    second: FireWork - 6_0
+  - first:
+      213: 4488982869628299593
+    second: FireWork - 6_1
+  - first:
+      213: 3428781715293430552
+    second: FireWork - 6_2
+  - first:
+      213: -8538256614588448112
+    second: FireWork - 6_3
+  - first:
+      213: 6575470193173251797
+    second: FireWork - 6_4
+  - first:
+      213: 6888084626961142945
+    second: FireWork - 6_5
+  - first:
+      213: -7976291489518419132
+    second: FireWork - 6_6
+  - first:
+      213: -5051750189741982990
+    second: FireWork - 6_7
+  - first:
+      213: 2281227090117974786
+    second: FireWork - 6_8
+  - first:
+      213: 2949254403556468321
+    second: FireWork - 6_9
+  - first:
+      213: -6904143722300863129
+    second: FireWork - 6_10
+  - first:
+      213: 2893994318805648791
+    second: FireWork - 6_11
+  - first:
+      213: -2366778117824007857
+    second: FireWork - 6_12
+  - first:
+      213: -2373699168196525354
+    second: FireWork - 6_13
+  - first:
+      213: -3666834697650176147
+    second: FireWork - 6_14
+  - first:
+      213: -5111935228196059481
+    second: FireWork - 6_15
+  - first:
+      213: -1199193248012605756
+    second: FireWork - 6_16
+  - first:
+      213: 4807435814020739696
+    second: FireWork - 6_17
+  - first:
+      213: -765498717342465873
+    second: FireWork - 6_18
+  - first:
+      213: 6741109077186987643
+    second: FireWork - 6_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 64
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FireWork - 6_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9492203e2221c4e30800000000000000
+      internalID: 4488982869628299593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 708ba93c659d8f54193f44da3ba5be48
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      FireWork - 6_0: 166619810880335093
+      FireWork - 6_1: 4488982869628299593
+      FireWork - 6_10: -6904143722300863129
+      FireWork - 6_11: 2893994318805648791
+      FireWork - 6_12: -2366778117824007857
+      FireWork - 6_13: -2373699168196525354
+      FireWork - 6_14: -3666834697650176147
+      FireWork - 6_15: -5111935228196059481
+      FireWork - 6_16: -1199193248012605756
+      FireWork - 6_17: 4807435814020739696
+      FireWork - 6_18: -765498717342465873
+      FireWork - 6_19: 6741109077186987643
+      FireWork - 6_2: 3428781715293430552
+      FireWork - 6_3: -8538256614588448112
+      FireWork - 6_4: 6575470193173251797
+      FireWork - 6_5: 6888084626961142945
+      FireWork - 6_6: -7976291489518419132
+      FireWork - 6_7: -5051750189741982990
+      FireWork - 6_8: 2281227090117974786
+      FireWork - 6_9: 2949254403556468321
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

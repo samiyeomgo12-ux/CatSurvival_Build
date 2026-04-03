@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6c7d61c586b7374ab1563ffb2bb19e1, type: 3}
+  m_Name: 04_CharacterSO_Purple
+  m_EditorClassIdentifier: 
+  characterID: 3
+  characterController: {fileID: 22100000, guid: a9df2ef5cacced44fac0440d248b153d, type: 2}
+  isRainbow: 0
+  isGold: 0
+  characterColor: {r: 1, g: 1, b: 1, a: 1}
+  key: 3
+  characterName: "\uBCF4\uB77C\uB0E5"
+  icon: {fileID: -6226091445656197847, guid: 19678a2f22caa19419d05b983a121a15, type: 3}
+  cDescription: "\uBE60\uB974\uACE0 \uAC15\uD558\uB2E4\uB0E5"
+  baseWeaponKey: 2
+  characterSpeed: 1.3
+  weaponSpeed: 1.2
+  weaponRate: 1.2
+  damage: 1.2
+  weaponCount: 1
+  condition:
+    unlockType: 2
+    isLock: 1
+    unlockKillCount: 0
+    unlockSurviveTime: 1

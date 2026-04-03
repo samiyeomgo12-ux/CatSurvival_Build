@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e4e4378fbdb295479298d2fa1ef3178, type: 3}
+  m_Name: NewPoolItemData_Weapon_CatPaw
+  m_EditorClassIdentifier: 
+  type: 1
+  prefab: {fileID: 4018327497850629424, guid: 6853c7b7f9ca540e299c2167a3a8f6f9, type: 3}
+  enemyKey: 7
+  weaponKey: 0
+  itemkey: 0
+  initSize: 30
+  maxSize: 100

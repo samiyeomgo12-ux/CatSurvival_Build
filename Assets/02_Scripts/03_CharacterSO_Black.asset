@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6c7d61c586b7374ab1563ffb2bb19e1, type: 3}
+  m_Name: 03_CharacterSO_Black
+  m_EditorClassIdentifier: 
+  characterID: 2
+  characterController: {fileID: 22100000, guid: a06a33de5919da64d97ba58be1a05dc4, type: 2}
+  isRainbow: 0
+  isGold: 0
+  characterColor: {r: 1, g: 1, b: 1, a: 1}
+  key: 2
+  characterName: "\uAE5C\uB0E5\uC774"
+  icon: {fileID: -2260338547152786754, guid: eca8b776dde9ad4489de66b04a303067, type: 3}
+  cDescription: "\uACF5\uACA9\uB825 10% \uAC15\uD654"
+  baseWeaponKey: 0
+  characterSpeed: 1.2
+  weaponSpeed: 1
+  weaponRate: 1.1
+  damage: 1.1
+  weaponCount: 2
+  condition:
+    unlockType: 1
+    isLock: 1
+    unlockKillCount: 2
+    unlockSurviveTime: 0

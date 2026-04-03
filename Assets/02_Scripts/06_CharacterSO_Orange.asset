@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6c7d61c586b7374ab1563ffb2bb19e1, type: 3}
+  m_Name: 06_CharacterSO_Orange
+  m_EditorClassIdentifier: 
+  characterID: 5
+  characterController: {fileID: 22100000, guid: 811fd2a63641ad642873bcfdaa0c707f, type: 2}
+  isRainbow: 0
+  isGold: 0
+  characterColor: {r: 0.9811321, g: 0.64497733, b: 0.30081883, a: 1}
+  key: 5
+  characterName: "\uC624\uB80C\uC9C0\uB0E5"
+  icon: {fileID: -2013704667970305717, guid: 456776a80c619f64697d85b3c34cc70b, type: 3}
+  cDescription: "\uC8FC\uBA39\uC774 3\uAC1C!"
+  baseWeaponKey: 0
+  characterSpeed: 1.1
+  weaponSpeed: 1.1
+  weaponRate: 1
+  damage: 1
+  weaponCount: 3
+  condition:
+    unlockType: 1
+    isLock: 1
+    unlockKillCount: 200
+    unlockSurviveTime: 0
