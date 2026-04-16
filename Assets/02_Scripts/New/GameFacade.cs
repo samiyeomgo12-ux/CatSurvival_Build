@@ -137,7 +137,15 @@ public class GameFacade : MonoBehaviour
             Debug.Log("하트 차감 실패");
             return;
         }
-
+        if(Adsmanager.Instance != null)
+        {
+            Adsmanager.Instance.ShowInterstitial(() =>
+            {
+                gameManager.GameRetry();
+                audioManager.PlayBgm(false);
+            });
+            return;
+        }
         gameManager.GameRetry();
         audioManager.PlayBgm(false);
         return;
@@ -145,6 +153,15 @@ public class GameFacade : MonoBehaviour
     }
     public void GameRetry()
     {
+        if(Adsmanager.Instance != null)
+        {
+            Adsmanager.Instance.ShowInterstitial(() =>
+            {
+                gameManager.GameRetry();
+                audioManager.PlayBgm(false);
+            });
+            return;
+        }
         gameManager.GameRetry();
         audioManager.PlayBgm(false);        
     }

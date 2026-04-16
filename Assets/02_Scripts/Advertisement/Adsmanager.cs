@@ -17,7 +17,7 @@ public class Adsmanager : MonoBehaviour
 
     public bool IsRewardedReady => rewarded != null && rewarded.CanShowAd();
     public bool IsInterstitialReady => interstitial != null && interstitial.CanShowAd();
-
+    private Action pendingInterstitialClosedCallback;
     public event Action<int> OnRewardGranted;
 
     private void Awake()
@@ -65,6 +65,8 @@ public class Adsmanager : MonoBehaviour
 
             interstitial.OnAdFullScreenContentClosed += () =>
             {
+                pendingInterstitialClosedCallback?.Invoke();
+                pendingInterstitialClosedCallback = null;
                 interstitial?.Destroy();
                 interstitial = null;
                 LoadInterstitial(); // 다시 로드
@@ -73,6 +75,8 @@ public class Adsmanager : MonoBehaviour
             interstitial.OnAdFullScreenContentFailed += (AdError adError) =>
             {
                 Debug.LogError($"Interstitial show failed :{adError}");
+                pendingInterstitialClosedCallback?.Invoke();
+                pendingInterstitialClosedCallback = null;
                 interstitial?.Destroy();
                 interstitial = null;
                 LoadInterstitial();
@@ -80,15 +84,17 @@ public class Adsmanager : MonoBehaviour
         });
     }
 
-    public void ShowInterstitial()
+    public void ShowInterstitial(Action onClosedOnFaild = null)
     {
         if(IsInterstitialReady)
         {
+            pendingInterstitialClosedCallback = onClosedOnFaild;
             interstitial.Show();
         }
         else
         {
             Debug.Log("전면광고 준비 안됨");
+            onClosedOnFaild?.Invoke();
         }
     }
     private void LoadRewarded()
