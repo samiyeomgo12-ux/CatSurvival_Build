@@ -50,7 +50,7 @@ public class Adsmanager : MonoBehaviour
         AdRequest request = new AdRequest();
 
         InterstitialAd.Load(
-        testInterstitialId,
+        interstitialId,
         request,
         (InterstitialAd ad, LoadAdError error) =>
         {
@@ -102,7 +102,7 @@ public class Adsmanager : MonoBehaviour
         AdRequest request = new AdRequest();
 
         RewardedAd.Load(
-            testRewardedId, 
+            rewardedId, 
             request, 
             (RewardedAd ad, LoadAdError error) =>
         {
