@@ -20,13 +20,13 @@ MonoBehaviour:
   key: 7
   characterName: "\uCD08\uB85D\uB0E5"
   icon: {fileID: -2013704667970305717, guid: 456776a80c619f64697d85b3c34cc70b, type: 3}
-  cDescription: 
+  cDescription: "\uBC38\uB7F0\uC2A4\uAC00 \uC88B\uC544"
   baseWeaponKey: 0
-  characterSpeed: 1.1
-  weaponSpeed: 1.1
+  characterSpeed: 1.3
+  weaponSpeed: 1.3
   weaponRate: 1
   damage: 1
-  weaponCount: 3
+  weaponCount: 2
   condition:
     unlockType: 2
     isLock: 1

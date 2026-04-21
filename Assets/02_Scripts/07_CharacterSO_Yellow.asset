@@ -20,7 +20,7 @@ MonoBehaviour:
   key: 6
   characterName: "\uB178\uB791\uB0E5"
   icon: {fileID: -2013704667970305717, guid: 456776a80c619f64697d85b3c34cc70b, type: 3}
-  cDescription: "\uBD04\uB0A0\uC758 \uACE0\uB0E5\uC774"
+  cDescription: "\uB370\uBBF8\uC9C0\uAC00 \uC138\uB2E4\uAD6C"
   baseWeaponKey: 0
   characterSpeed: 1.1
   weaponSpeed: 1.1
