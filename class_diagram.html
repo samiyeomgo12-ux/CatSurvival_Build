@@ -480,37 +480,69 @@ LifeManager ..> Adsmanager
 </div>
 
 <script>
-// Mermaid CDN fallback
-function ensureMermaid(cb){
-  if (window.mermaid) return cb();
-  const s = document.createElement('script');
-  s.src = window.MERMAID_FALLBACK || 'https://unpkg.com/mermaid@10/dist/mermaid.min.js';
-  s.onload = cb;
-  s.onerror = () => {
-    document.querySelectorAll('.mermaid').forEach(el=>{
-      el.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">⚠️ Mermaid CDN 로드 실패 — 인터넷 연결을 확인하세요.<br/><small>(원본 다이어그램 소스는 페이지 소스에서 확인 가능)</small></div>';
-    });
-  };
-  document.head.appendChild(s);
+// --- Preserve original Mermaid sources before any auto-rendering happens ---
+// (Mermaid replaces innerHTML with SVG on first run; we need the raw graph text
+//  to be able to re-render the diagram tab later, since it starts in display:none.)
+document.querySelectorAll('.mermaid').forEach((el, i) => {
+  el.dataset.src = el.textContent.trim();
+  el.dataset.mid = 'm' + i;
+});
+
+let mermaidReady = false;
+const renderQueue = new Set();
+
+function loadMermaid(){
+  return new Promise((resolve, reject) => {
+    if (window.mermaid) return resolve();
+    const s = document.createElement('script');
+    s.src = window.MERMAID_FALLBACK || 'https://unpkg.com/mermaid@10/dist/mermaid.min.js';
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('CDN fail'));
+    document.head.appendChild(s);
+  });
 }
 
-ensureMermaid(()=>{
+async function initMermaid(){
+  if (!window.mermaid){
+    try { await loadMermaid(); }
+    catch(e){
+      document.querySelectorAll('.mermaid').forEach(el=>{
+        el.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">⚠️ Mermaid CDN 로드 실패 — 인터넷 연결을 확인하세요.</div>';
+      });
+      return;
+    }
+  }
   mermaid.initialize({startOnLoad:false, theme:'dark', securityLevel:'loose',
     themeVariables:{
       primaryColor:'#1e2330', primaryTextColor:'#e6e9ef', primaryBorderColor:'#7cc5ff',
       lineColor:'#9099ad', fontFamily:'ui-monospace,Menlo,monospace'
     }});
-  renderMermaidIn(document);
-});
-
-// Render only diagrams that have not been processed yet
-function renderMermaidIn(root){
-  if (!window.mermaid) return;
-  const nodes = root.querySelectorAll('.mermaid:not([data-processed="true"])');
-  if (!nodes.length) return;
-  try { mermaid.run({nodes: Array.from(nodes)}); }
-  catch(e){ console.error('Mermaid render error', e); }
+  mermaidReady = true;
+  // Render any queued blocks + currently visible ones
+  renderQueue.forEach(el => renderOne(el));
+  renderQueue.clear();
+  document.querySelectorAll('section.active .mermaid').forEach(renderOne);
 }
+
+async function renderOne(el){
+  if (!mermaidReady){ renderQueue.add(el); return; }
+  // Skip if the section is not visible yet — Mermaid needs layout dimensions
+  const sec = el.closest('section');
+  if (sec && !sec.classList.contains('active')){ renderQueue.add(el); return; }
+  if (el.dataset.rendered === '1') return;
+  try {
+    const id = 'svg-' + el.dataset.mid + '-' + Date.now();
+    const { svg } = await mermaid.render(id, el.dataset.src);
+    el.innerHTML = svg;
+    el.dataset.rendered = '1';
+    el.removeAttribute('data-processed');
+  } catch(e){
+    console.error('Mermaid render error', e);
+    el.innerHTML = '<pre style="color:#f87171;white-space:pre-wrap;font-size:11px">⚠️ 다이어그램 렌더링 실패:\n' + (e.message||e) + '</pre>';
+  }
+}
+
+initMermaid();
 
 // ----- tabs -----
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
@@ -519,8 +551,10 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
   b.classList.add('active');
   const sec = document.getElementById(b.dataset.tab);
   sec.classList.add('active');
-  // Re-attempt render for any mermaid blocks in this section (handles display:none → block transition)
-  setTimeout(()=>renderMermaidIn(sec), 30);
+  // Render the diagrams inside the just-activated section
+  requestAnimationFrame(() => {
+    sec.querySelectorAll('.mermaid').forEach(renderOne);
+  });
 });
 
 // ----- data -----
