@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>CatSurvival — 클래스 구조도 & 아키텍처 분석</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>window.MERMAID_FALLBACK="https://unpkg.com/mermaid@10/dist/mermaid.min.js";</script>
 <style>
 :root{
   --bg:#0f1218; --panel:#171b24; --panel2:#1e2330; --border:#2a3142;
@@ -207,216 +208,225 @@ flowchart LR
   <div class="diagram-wrap">
     <pre class="mermaid">
 classDiagram
-  direction LR
+direction LR
 
-  class GameFacade {
-    +Instance$
-    -NewGameManager gm
-    -NewPlayerManager pm
-    -NewItemManager im
-    -TimeManager tm
-    -NewAudioManager am
-    -NewObjectPoolManager pool
-    -NewUIManager ui
-    -LifeManager life
-    +GameStart()
-    +PlayerExpAdd()
-    +PlayerTakeDamage()
-    +GameOver()
-    +Get~T~(T key)
-    +Return~T~(T key, GO)
-  }
+class GameFacade {
+  +Instance
+  +GameStart()
+  +PlayerExpAdd()
+  +PlayerTakeDamage()
+  +GameOver()
+  +Get(key)
+  +Return(key, go)
+}
+class NewGameManager {
+  +isLive
+  +Stop()
+  +GameVictory()
+  +GameOver()
+  +OnStop_evt
+  +OnGameOver_evt
+}
+class NewPlayerManager {
+  -playerHp
+  -level
+  -exp
+  -kill
+  +AddExp()
+  +TakeDamage()
+  +HealFull()
+  +OnLevelup_evt
+  +OnHpChanged_evt
+}
+class TimeManager {
+  +GameTime
+  +OnTimeUp_evt
+}
+class NewItemManager {
+  +itemDatas
+  +weapons
+  +gears
+  +SelectItem(idx)
+}
+class NewObjectPoolManager {
+  +Instance
+  -enemyPools
+  -weaponPools
+  -itemPools
+  +Get()
+  +Return()
+}
+class NewAudioManager {
+  +PlayBgm()
+  +PlaySfx()
+}
+class NewUIManager {
+  +Win()
+  +Lose()
+}
+class LifeManager {
+  +CurrentLife
+  +ConsumeLife()
+  +AddLife()
+  +OnLifeChanged_evt
+}
+class NewPlayer {
+  -inputVec
+  -scanner
+  -currentCharacterSO
+  +OnMove()
+}
+class NewWeapon {
+  +Init()
+  +Fire()
+  +LevelUp()
+  +OnWeaponChanged_evt
+}
+class CatAttack {
+  +damage
+  +per
+  +speed
+  +Init()
+}
+class Scanner {
+  +GetNearest()
+}
+class Gear {
+  +ApplyGear()
+  +OnApplyGear_evt
+}
+class MagnetPuller
+class NewCharacter {
+  +Speed_static
+  +Damage_static
+}
+class NewEnemy {
+  +Init(spawnData)
+  +Dead()
+  +DropItems()
+}
+class NewPickupItemBase {
+  +OnCollected_abstract
+}
+class ExpItem
+class NewHealItem
+class NewMagnetItem
+class NewItem {
+  +Setup()
+  +OnClick()
+}
+class CharacterSO {
+  +characterID
+  +characterSpeed
+  +damage
+  +condition
+}
+class ItemData {
+  +itemType
+  +damages
+  +speeds
+  +counts
+}
+class NewSpawnData {
+  +enemyHp
+  +enemySpeed
+  +spawnTime
+}
+class PoolItemDataBase {
+  +items
+}
+class NewPoolItemData
+class NewLevelUpView {
+  +Show()
+  +Hide()
+  +Next()
+}
+class NewResultView {
+  +Win()
+  +Lose()
+}
+class PauseAndResume
+class HUD
+class NewAchiveManager {
+  +Instance
+  +CheackAndUnlock()
+  +ShowNotice()
+}
+class FirebaseBootstrap {
+  +Auth
+  +Db
+  +Uid
+  +InitializeAndSignInAsync()
+}
+class PlayerService {
+  +CreateOrUpdateNicknameAsync()
+  +UpdateBestKillsIfHigherAsync()
+}
+class RankingService {
+  +LoadTop100Async()
+}
+class RankingListController {
+  +LoadAndRenderAsync()
+}
+class RankingView {
+  +Bind()
+}
+class Adsmanager {
+  +Instance
+  +ShowInterstitial()
+  +ShowRewarded()
+  +OnRewardGranted_evt
+}
 
-  class NewGameManager {
-    +isLive
-    +Stop() Resume()
-    +GameVictory() GameOver()
-    «event» OnStop OnResume
-    «event» OnGameOver OnGameVictory
-  }
-  class NewPlayerManager {
-    -float _playerHp
-    -int _level _exp _kill
-    +AddExp() AddKill()
-    +TakeDamage() HealFull()
-    «event» OnLevelup OnHpChanged
-  }
-  class TimeManager {
-    +GameTime
-    «event» OnTimeUp
-  }
-  class NewItemManager {
-    +ItemData[] itemDatas
-    +NewWeapon[] weapons
-    +Gear[] gears
-    +SelectItem(idx)
-  }
-  class NewObjectPoolManager {
-    +Instance$
-    -Dictionary~EnemyEnumId,NewPool~
-    -Dictionary~WeaponEnumId,NewPool~
-    -Dictionary~ItemEnumId,NewPool~
-    +Get() Return()
-  }
-  class NewAudioManager {
-    +PlayBgm() PlaySfx(Sfx)
-  }
-  class NewUIManager {
-    +Win() Lose()
-    +PauseAndResumeButtonShow()
-  }
-  class LifeManager {
-    +CurrentLife
-    +ConsumeLife() AddLife()
-    «event» OnLifeChanged
-  }
+GameFacade *-- NewGameManager
+GameFacade *-- NewPlayerManager
+GameFacade *-- TimeManager
+GameFacade *-- NewItemManager
+GameFacade *-- NewUIManager
+GameFacade *-- NewAudioManager
+GameFacade *-- LifeManager
+GameFacade --> NewObjectPoolManager
+GameFacade --> Adsmanager
+GameFacade --> PlayerService
 
-  class NewPlayer {
-    -inputVec
-    -Scanner scanner
-    -CharacterSO currentCharacterSO
-    +OnMove()
-  }
-  class NewWeapon {
-    +Init() Fire() LevelUp()
-    «event» OnWeaponChanged
-  }
-  class CatAttack {
-    +damage per speed
-    +Init()
-  }
-  class Scanner { +GetNearest() }
-  class Gear {
-    +ApplyGear()
-    «event» OnApplyGear
-  }
-  class MagnetPuller
-  class NewCharacter {
-    «static» Speed Damage WeaponSpeed
-  }
+NewPlayer --> CharacterSO
+NewPlayer --> Scanner
+NewPlayer ..> GameFacade
+NewItemManager --> ItemData
+NewItemManager --> NewWeapon
+NewItemManager --> Gear
+NewWeapon --> CatAttack
+NewWeapon ..> Scanner
+Gear ..> NewWeapon
 
-  class NewEnemy {
-    +Init(NewSpawnData)
-    +Dead() DropItems()
-  }
-  class NewPickupItemBase {
-    «abstract» OnCollected()
-  }
-  class ExpItem
-  class NewHealItem
-  class NewMagnetItem
-  class NewItem { +Setup() +OnClick() }
+NewObjectPoolManager --> PoolItemDataBase
+PoolItemDataBase o-- NewPoolItemData
 
-  class CharacterSO {
-    «SO»
-    +characterID
-    +characterSpeed damage
-    +CharacterUnlockCondition condition
-  }
-  class ItemData {
-    «SO»
-    +itemType
-    +damages[] speeds[] counts[]
-  }
-  class NewSpawnData {
-    «SO»
-    +enemyHp enemySpeed spawnTime
-  }
-  class PoolItemDataBase {
-    «SO»
-    +List~NewPoolItemData~ items
-  }
-  class NewPoolItemData { «SO» }
+NewEnemy --> NewSpawnData
+NewEnemy ..> GameFacade
 
-  class NewLevelUpView { +Show() Hide() Next() }
-  class NewResultView { +Win() Lose() }
-  class PauseAndResume
-  class HUD
+NewPickupItemBase <|-- ExpItem
+NewPickupItemBase <|-- NewHealItem
+NewPickupItemBase <|-- NewMagnetItem
+ExpItem ..> GameFacade
+NewHealItem ..> GameFacade
+NewMagnetItem ..> GameFacade
 
-  class NewAchiveManager {
-    +Instance$
-    +CheackAndUnlock()
-    +ShowNotice()
-  }
+NewLevelUpView --> NewItem
+NewItem ..> GameFacade
+PauseAndResume ..> GameFacade
+HUD ..> NewPlayerManager
+HUD ..> TimeManager
 
-  class FirebaseBootstrap {
-    +Auth$ Db$ Uid$
-    +InitializeAndSignInAsync()
-  }
-  class PlayerService {
-    +CreateOrUpdateNicknameAsync()
-    +UpdateBestKillsIfHigherAsync()
-  }
-  class RankingService { +LoadTop100Async() }
-  class RankingListController { +LoadAndRenderAsync() }
-  class RankingView { +Bind() }
+NewAchiveManager --> CharacterSO
 
-  class Adsmanager {
-    +Instance$
-    +ShowInterstitial()
-    +ShowRewarded()
-    «event» OnRewardGranted
-  }
+RankingListController --> FirebaseBootstrap
+RankingListController --> RankingService
+RankingListController --> RankingView
+PlayerService --> FirebaseBootstrap
+RankingService --> FirebaseBootstrap
 
-  GameFacade *-- NewGameManager
-  GameFacade *-- NewPlayerManager
-  GameFacade *-- TimeManager
-  GameFacade *-- NewItemManager
-  GameFacade *-- NewUIManager
-  GameFacade *-- NewAudioManager
-  GameFacade *-- LifeManager
-  GameFacade --> NewObjectPoolManager
-  GameFacade --> Adsmanager
-  GameFacade --> PlayerService
-
-  NewPlayer --> CharacterSO
-  NewPlayer --> Scanner
-  NewPlayer ..> GameFacade
-  NewItemManager --> ItemData
-  NewItemManager --> NewWeapon
-  NewItemManager --> Gear
-  NewWeapon --> CatAttack
-  NewWeapon ..> Scanner
-  Gear ..> NewWeapon : subscribes OnWeaponChanged
-
-  NewObjectPoolManager --> PoolItemDataBase
-  PoolItemDataBase o-- NewPoolItemData
-
-  NewEnemy --> NewSpawnData
-  NewEnemy ..> GameFacade : Return / drops
-
-  NewPickupItemBase <|-- ExpItem
-  NewPickupItemBase <|-- NewHealItem
-  NewPickupItemBase <|-- NewMagnetItem
-  ExpItem ..> GameFacade
-  NewHealItem ..> GameFacade
-  NewMagnetItem ..> GameFacade
-
-  NewLevelUpView --> NewItem
-  NewItem ..> GameFacade
-  PauseAndResume ..> GameFacade
-  HUD ..> NewPlayerManager : event
-  HUD ..> TimeManager : event
-
-  NewAchiveManager --> CharacterSO
-
-  RankingListController --> FirebaseBootstrap
-  RankingListController --> RankingService
-  RankingListController --> RankingView
-  PlayerService --> FirebaseBootstrap
-  RankingService --> FirebaseBootstrap
-
-  LifeManager ..> Adsmanager : OnRewardGranted
-
-  style GameFacade fill:#3a1a35,stroke:#ff9ed8,color:#fff
-  style NewObjectPoolManager fill:#2a2a3a,stroke:#ffd966,color:#fff
-  style NewAchiveManager fill:#2a2a3a,stroke:#ffd966,color:#fff
-  style Adsmanager fill:#2a2a3a,stroke:#ffd966,color:#fff
-  style CharacterSO fill:#3d3517,stroke:#ffd966,color:#fff
-  style ItemData fill:#3d3517,stroke:#ffd966,color:#fff
-  style NewSpawnData fill:#3d3517,stroke:#ffd966,color:#fff
-  style PoolItemDataBase fill:#3d3517,stroke:#ffd966,color:#fff
-  style NewPoolItemData fill:#3d3517,stroke:#ffd966,color:#fff
+LifeManager ..> Adsmanager
     </pre>
   </div>
 </section>
@@ -470,17 +480,47 @@ classDiagram
 </div>
 
 <script>
-mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{
-  primaryColor:'#1e2330', primaryTextColor:'#e6e9ef', primaryBorderColor:'#7cc5ff',
-  lineColor:'#9099ad', fontFamily:'ui-monospace,Menlo,monospace'
-}});
+// Mermaid CDN fallback
+function ensureMermaid(cb){
+  if (window.mermaid) return cb();
+  const s = document.createElement('script');
+  s.src = window.MERMAID_FALLBACK || 'https://unpkg.com/mermaid@10/dist/mermaid.min.js';
+  s.onload = cb;
+  s.onerror = () => {
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      el.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">⚠️ Mermaid CDN 로드 실패 — 인터넷 연결을 확인하세요.<br/><small>(원본 다이어그램 소스는 페이지 소스에서 확인 가능)</small></div>';
+    });
+  };
+  document.head.appendChild(s);
+}
+
+ensureMermaid(()=>{
+  mermaid.initialize({startOnLoad:false, theme:'dark', securityLevel:'loose',
+    themeVariables:{
+      primaryColor:'#1e2330', primaryTextColor:'#e6e9ef', primaryBorderColor:'#7cc5ff',
+      lineColor:'#9099ad', fontFamily:'ui-monospace,Menlo,monospace'
+    }});
+  renderMermaidIn(document);
+});
+
+// Render only diagrams that have not been processed yet
+function renderMermaidIn(root){
+  if (!window.mermaid) return;
+  const nodes = root.querySelectorAll('.mermaid:not([data-processed="true"])');
+  if (!nodes.length) return;
+  try { mermaid.run({nodes: Array.from(nodes)}); }
+  catch(e){ console.error('Mermaid render error', e); }
+}
 
 // ----- tabs -----
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
   b.classList.add('active');
-  document.getElementById(b.dataset.tab).classList.add('active');
+  const sec = document.getElementById(b.dataset.tab);
+  sec.classList.add('active');
+  // Re-attempt render for any mermaid blocks in this section (handles display:none → block transition)
+  setTimeout(()=>renderMermaidIn(sec), 30);
 });
 
 // ----- data -----
