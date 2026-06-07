@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>CatSurvival — 클래스 구조도 & 아키텍처 분석</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#0f1218; --panel:#171b24; --panel2:#1e2330; --border:#2a3142;
+  --text:#e6e9ef; --muted:#9099ad; --accent:#7cc5ff;
+  --core:#ffb86b; --player:#79e0a0; --enemy:#ff7a7a; --item:#c2a4ff;
+  --data:#ffd966; --ui:#76d9ff; --ach:#f4a3c7; --fire:#ffa94d; --ads:#9be07f; --old:#5a6275;
+  --good:#4ade80; --bad:#f87171; --warn:#fbbf24;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6}
+header{padding:32px 40px;background:linear-gradient(135deg,#1a1f2e 0%,#0f1218 100%);
+  border-bottom:1px solid var(--border)}
+h1{margin:0 0 8px;font-size:28px;letter-spacing:-.5px}
+.subtitle{color:var(--muted);font-size:14px}
+.tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;
+  background:var(--panel2);color:var(--muted);margin-right:6px;border:1px solid var(--border)}
+nav{display:flex;gap:4px;padding:0 40px;background:var(--panel);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:10}
+nav button{background:none;border:none;color:var(--muted);padding:14px 18px;cursor:pointer;
+  font-size:14px;border-bottom:2px solid transparent;transition:all .15s}
+nav button:hover{color:var(--text)}
+nav button.active{color:var(--accent);border-bottom-color:var(--accent)}
+main{padding:32px 40px;max-width:1600px;margin:0 auto}
+section{display:none}
+section.active{display:block}
+h2{font-size:22px;margin:0 0 4px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h2 .desc{font-size:13px;color:var(--muted);font-weight:400;margin-left:8px}
+h3{font-size:16px;margin:24px 0 12px;color:var(--accent)}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat .n{font-size:24px;font-weight:600;color:var(--accent)}
+.stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Layer grid */
+.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px}
+.layer{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;
+  border-top:3px solid var(--ly,var(--accent))}
+.layer h4{margin:0 0 4px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.layer .summary{font-size:11px;color:var(--muted);margin-bottom:10px}
+.classes{display:flex;flex-wrap:wrap;gap:6px}
+.cls{background:var(--panel2);border:1px solid var(--border);border-radius:6px;
+  padding:5px 9px;font-size:11.5px;cursor:pointer;transition:all .15s;font-family:ui-monospace,Menlo,monospace}
+.cls:hover{background:var(--ly,var(--accent));color:#0f1218;border-color:var(--ly,var(--accent))}
+.cls.singleton::before{content:"●";color:#ffd966;margin-right:4px}
+.cls.so::before{content:"◆";color:#ffd966;margin-right:4px}
+.cls.facade::before{content:"★";color:#ff9ed8;margin-right:4px}
+
+/* legend */
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:12px 0 4px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* Diagram container */
+.diagram-wrap{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:20px;overflow:auto;margin-top:16px}
+.mermaid{font-family:ui-monospace,monospace}
+
+/* Pattern cards */
+.patterns{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px;margin-top:12px}
+.pcard{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;
+  border-left:3px solid var(--accent)}
+.pcard h4{margin:0 0 6px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.pcard .where{font-size:11px;color:var(--muted);font-family:ui-monospace,monospace;margin-bottom:8px}
+.pcard p{margin:0 0 8px;font-size:13.5px;color:#cdd3df}
+.pcard .ex{background:var(--panel2);border-radius:6px;padding:8px 10px;font-family:ui-monospace,monospace;
+  font-size:11.5px;color:#cdd3df;border:1px solid var(--border);white-space:pre-wrap;overflow-x:auto}
+.badge{font-size:10px;background:var(--accent);color:#0f1218;padding:2px 8px;border-radius:10px;font-weight:600}
+.badge.good{background:var(--good)}
+.badge.warn{background:var(--warn)}
+.badge.bad{background:var(--bad)}
+
+/* Pros/cons */
+.proscons{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+@media (max-width:900px){.proscons{grid-template-columns:1fr}}
+.col{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
+.col h3{margin-top:0}
+.col.pros{border-top:3px solid var(--good)}
+.col.cons{border-top:3px solid var(--bad)}
+.item{margin-bottom:14px;padding-bottom:14px;border-bottom:1px dashed var(--border)}
+.item:last-child{border:none;margin:0;padding:0}
+.item .t{font-weight:600;font-size:14px;margin-bottom:4px}
+.item .t.g{color:var(--good)}
+.item .t.b{color:var(--bad)}
+.item .d{font-size:13px;color:#cdd3df;margin-bottom:6px}
+.item .e{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--muted);
+  background:var(--panel2);padding:6px 9px;border-radius:5px;border:1px solid var(--border)}
+.item .fix{font-size:12.5px;color:var(--good);margin-top:6px}
+.item .fix::before{content:"→ ";color:var(--good);font-weight:600}
+
+/* Risk table */
+table{width:100%;border-collapse:collapse;margin-top:12px;background:var(--panel);border-radius:10px;overflow:hidden}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:13px}
+th{background:var(--panel2);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+tr:last-child td{border-bottom:none}
+td code{background:var(--panel2);padding:1px 6px;border-radius:4px;font-size:12px}
+
+/* Detail panel */
+#detail{position:fixed;right:20px;bottom:20px;width:340px;max-height:60vh;overflow:auto;
+  background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);display:none;z-index:100}
+#detail.show{display:block}
+#detail h4{margin:0 0 6px;color:var(--accent);font-family:ui-monospace,monospace;font-size:14px}
+#detail .path{font-size:11px;color:var(--muted);font-family:ui-monospace,monospace;margin-bottom:10px;word-break:break-all}
+#detail dl{margin:0;font-size:12.5px}
+#detail dt{color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:8px;letter-spacing:.5px}
+#detail dd{margin:2px 0 0;color:#cdd3df}
+#detail .close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--muted);
+  cursor:pointer;font-size:18px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐱 CatSurvival — 클래스 구조도 & 아키텍처 분석</h1>
+  <div class="subtitle">
+    <span class="tag">Unity 6.3</span>
+    <span class="tag">C#</span>
+    <span class="tag">Firebase</span>
+    <span class="tag">Google Mobile Ads</span>
+    Vampire Survivors 스타일 모바일 액션 게임 · 안드로이드 출시 + 포트폴리오 목적
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" data-tab="overview">개요</button>
+  <button class="tab" data-tab="diagram">클래스 다이어그램</button>
+  <button class="tab" data-tab="layers">레이어별 분류</button>
+  <button class="tab" data-tab="patterns">디자인 패턴</button>
+  <button class="tab" data-tab="pros">장점</button>
+  <button class="tab" data-tab="cons">개선점</button>
+</nav>
+
+<main>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="active">
+  <h2>프로젝트 개요 <span class="desc">- 한눈에 보는 구조</span></h2>
+
+  <div class="stats">
+    <div class="stat"><div class="n">~60</div><div class="l">총 C# 스크립트</div></div>
+    <div class="stat"><div class="n">9</div><div class="l">아키텍처 레이어</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">ScriptableObject 데이터</div></div>
+    <div class="stat"><div class="n">4</div><div class="l">싱글톤 / 정적 진입점</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Facade 중앙 허브</div></div>
+    <div class="stat"><div class="n">12</div><div class="l">캐릭터 SO 에셋</div></div>
+  </div>
+
+  <h3>핵심 아키텍처 흐름</h3>
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+flowchart LR
+  SO["📦 ScriptableObject<br/>(CharacterSO · ItemData<br/>NewSpawnData · PoolItemData)"]
+  GF["⭐ GameFacade<br/>(Singleton)"]
+  MGRS["🔧 Managers<br/>Game · Player · Item<br/>Time · Audio · Pool · UI · Life"]
+  PLAY["🎮 Gameplay<br/>NewPlayer · NewEnemy<br/>NewWeapon · CatAttack · Gear"]
+  UI["🖼️ UI Views<br/>HUD · LevelUp · Result · Pause"]
+  FB["☁️ Firebase<br/>Bootstrap · PlayerService<br/>RankingService"]
+  ADS["📺 Adsmanager"]
+
+  SO -.read.-> MGRS
+  GF --> MGRS
+  MGRS -.events.-> UI
+  PLAY -->|GameFacade.Instance| GF
+  UI -->|GameFacade.Instance| GF
+  GF --> FB
+  GF --> ADS
+
+  classDef so fill:#3d3517,stroke:#ffd966,color:#fff
+  classDef facade fill:#3a1a35,stroke:#ff9ed8,color:#fff
+  classDef mgr fill:#1a2a3a,stroke:#7cc5ff,color:#fff
+  classDef ext fill:#2a1a1a,stroke:#ff9959,color:#fff
+  class SO so
+  class GF facade
+  class MGRS,PLAY,UI mgr
+  class FB,ADS ext
+    </pre>
+  </div>
+
+  <h3>요약 평가</h3>
+  <table>
+    <tr><th>항목</th><th>평가</th><th>비고</th></tr>
+    <tr><td>레이어 분리</td><td><span class="badge good">우수</span></td><td>Core / Combat / UI / Backend / Ads 가 명확히 구분</td></tr>
+    <tr><td>Facade 적용</td><td><span class="badge good">우수</span></td><td>GameFacade가 8개 매니저 위에서 중앙 허브 역할 수행</td></tr>
+    <tr><td>Object Pooling</td><td><span class="badge good">양호</span></td><td>Dictionary&lt;Enum, NewPool&gt; 기반 O(1) 접근</td></tr>
+    <tr><td>이벤트 기반 통신</td><td><span class="badge good">양호</span></td><td>OnLevelup, OnTimeUp, OnHpChanged 등 Action 다수 활용</td></tr>
+    <tr><td>네이밍 일관성</td><td><span class="badge warn">개선 필요</span></td><td><code>New*</code> 접두사, <code>prefebs</code> 오타, <code>CatAtack</code>, <code>Achive</code> 등</td></tr>
+    <tr><td>MVP 분리 (UI)</td><td><span class="badge warn">부분 적용</span></td><td>설계 문서에는 명시, 실제는 View ↔ Manager 직접 호출이 다수</td></tr>
+    <tr><td>레거시 코드</td><td><span class="badge bad">정리 필요</span></td><td><code>Old/</code> 폴더가 동일 책임의 클래스를 중복 보유</td></tr>
+    <tr><td>정적 의존성</td><td><span class="badge warn">주의</span></td><td><code>GameFacade.Instance</code>에 모든 시스템이 의존 → 테스트 어려움</td></tr>
+  </table>
+</section>
+
+<!-- ============ DIAGRAM ============ -->
+<section id="diagram">
+  <h2>클래스 다이어그램 <span class="desc">- 주요 관계 (Mermaid)</span></h2>
+  <p style="color:var(--muted);font-size:13px">
+    실선 = 직접 참조 / 호출 · 점선 = 이벤트 구독 · ◆ = ScriptableObject · ★ = Facade · ● = Singleton
+  </p>
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+classDiagram
+  direction LR
+
+  class GameFacade {
+    +Instance$
+    -NewGameManager gm
+    -NewPlayerManager pm
+    -NewItemManager im
+    -TimeManager tm
+    -NewAudioManager am
+    -NewObjectPoolManager pool
+    -NewUIManager ui
+    -LifeManager life
+    +GameStart()
+    +PlayerExpAdd()
+    +PlayerTakeDamage()
+    +GameOver()
+    +Get~T~(T key)
+    +Return~T~(T key, GO)
+  }
+
+  class NewGameManager {
+    +isLive
+    +Stop() Resume()
+    +GameVictory() GameOver()
+    «event» OnStop OnResume
+    «event» OnGameOver OnGameVictory
+  }
+  class NewPlayerManager {
+    -float _playerHp
+    -int _level _exp _kill
+    +AddExp() AddKill()
+    +TakeDamage() HealFull()
+    «event» OnLevelup OnHpChanged
+  }
+  class TimeManager {
+    +GameTime
+    «event» OnTimeUp
+  }
+  class NewItemManager {
+    +ItemData[] itemDatas
+    +NewWeapon[] weapons
+    +Gear[] gears
+    +SelectItem(idx)
+  }
+  class NewObjectPoolManager {
+    +Instance$
+    -Dictionary~EnemyEnumId,NewPool~
+    -Dictionary~WeaponEnumId,NewPool~
+    -Dictionary~ItemEnumId,NewPool~
+    +Get() Return()
+  }
+  class NewAudioManager {
+    +PlayBgm() PlaySfx(Sfx)
+  }
+  class NewUIManager {
+    +Win() Lose()
+    +PauseAndResumeButtonShow()
+  }
+  class LifeManager {
+    +CurrentLife
+    +ConsumeLife() AddLife()
+    «event» OnLifeChanged
+  }
+
+  class NewPlayer {
+    -inputVec
+    -Scanner scanner
+    -CharacterSO currentCharacterSO
+    +OnMove()
+  }
+  class NewWeapon {
+    +Init() Fire() LevelUp()
+    «event» OnWeaponChanged
+  }
+  class CatAttack {
+    +damage per speed
+    +Init()
+  }
+  class Scanner { +GetNearest() }
+  class Gear {
+    +ApplyGear()
+    «event» OnApplyGear
+  }
+  class MagnetPuller
+  class NewCharacter {
+    «static» Speed Damage WeaponSpeed
+  }
+
+  class NewEnemy {
+    +Init(NewSpawnData)
+    +Dead() DropItems()
+  }
+  class NewPickupItemBase {
+    «abstract» OnCollected()
+  }
+  class ExpItem
+  class NewHealItem
+  class NewMagnetItem
+  class NewItem { +Setup() +OnClick() }
+
+  class CharacterSO {
+    «SO»
+    +characterID
+    +characterSpeed damage
+    +CharacterUnlockCondition condition
+  }
+  class ItemData {
+    «SO»
+    +itemType
+    +damages[] speeds[] counts[]
+  }
+  class NewSpawnData {
+    «SO»
+    +enemyHp enemySpeed spawnTime
+  }
+  class PoolItemDataBase {
+    «SO»
+    +List~NewPoolItemData~ items
+  }
+  class NewPoolItemData { «SO» }
+
+  class NewLevelUpView { +Show() Hide() Next() }
+  class NewResultView { +Win() Lose() }
+  class PauseAndResume
+  class HUD
+
+  class NewAchiveManager {
+    +Instance$
+    +CheackAndUnlock()
+    +ShowNotice()
+  }
+
+  class FirebaseBootstrap {
+    +Auth$ Db$ Uid$
+    +InitializeAndSignInAsync()
+  }
+  class PlayerService {
+    +CreateOrUpdateNicknameAsync()
+    +UpdateBestKillsIfHigherAsync()
+  }
+  class RankingService { +LoadTop100Async() }
+  class RankingListController { +LoadAndRenderAsync() }
+  class RankingView { +Bind() }
+
+  class Adsmanager {
+    +Instance$
+    +ShowInterstitial()
+    +ShowRewarded()
+    «event» OnRewardGranted
+  }
+
+  GameFacade *-- NewGameManager
+  GameFacade *-- NewPlayerManager
+  GameFacade *-- TimeManager
+  GameFacade *-- NewItemManager
+  GameFacade *-- NewUIManager
+  GameFacade *-- NewAudioManager
+  GameFacade *-- LifeManager
+  GameFacade --> NewObjectPoolManager
+  GameFacade --> Adsmanager
+  GameFacade --> PlayerService
+
+  NewPlayer --> CharacterSO
+  NewPlayer --> Scanner
+  NewPlayer ..> GameFacade
+  NewItemManager --> ItemData
+  NewItemManager --> NewWeapon
+  NewItemManager --> Gear
+  NewWeapon --> CatAttack
+  NewWeapon ..> Scanner
+  Gear ..> NewWeapon : subscribes OnWeaponChanged
+
+  NewObjectPoolManager --> PoolItemDataBase
+  PoolItemDataBase o-- NewPoolItemData
+
+  NewEnemy --> NewSpawnData
+  NewEnemy ..> GameFacade : Return / drops
+
+  NewPickupItemBase <|-- ExpItem
+  NewPickupItemBase <|-- NewHealItem
+  NewPickupItemBase <|-- NewMagnetItem
+  ExpItem ..> GameFacade
+  NewHealItem ..> GameFacade
+  NewMagnetItem ..> GameFacade
+
+  NewLevelUpView --> NewItem
+  NewItem ..> GameFacade
+  PauseAndResume ..> GameFacade
+  HUD ..> NewPlayerManager : event
+  HUD ..> TimeManager : event
+
+  NewAchiveManager --> CharacterSO
+
+  RankingListController --> FirebaseBootstrap
+  RankingListController --> RankingService
+  RankingListController --> RankingView
+  PlayerService --> FirebaseBootstrap
+  RankingService --> FirebaseBootstrap
+
+  LifeManager ..> Adsmanager : OnRewardGranted
+
+  style GameFacade fill:#3a1a35,stroke:#ff9ed8,color:#fff
+  style NewObjectPoolManager fill:#2a2a3a,stroke:#ffd966,color:#fff
+  style NewAchiveManager fill:#2a2a3a,stroke:#ffd966,color:#fff
+  style Adsmanager fill:#2a2a3a,stroke:#ffd966,color:#fff
+  style CharacterSO fill:#3d3517,stroke:#ffd966,color:#fff
+  style ItemData fill:#3d3517,stroke:#ffd966,color:#fff
+  style NewSpawnData fill:#3d3517,stroke:#ffd966,color:#fff
+  style PoolItemDataBase fill:#3d3517,stroke:#ffd966,color:#fff
+  style NewPoolItemData fill:#3d3517,stroke:#ffd966,color:#fff
+    </pre>
+  </div>
+</section>
+
+<!-- ============ LAYERS ============ -->
+<section id="layers">
+  <h2>레이어별 클래스 분류 <span class="desc">- 클래스를 클릭하면 상세 정보</span></h2>
+
+  <div class="legend">
+    <span><i class="dot" style="background:#ffd966"></i>● Singleton / ◆ ScriptableObject / ★ Facade</span>
+    <span><i class="dot" style="background:var(--core)"></i>Core</span>
+    <span><i class="dot" style="background:var(--player)"></i>Combat</span>
+    <span><i class="dot" style="background:var(--enemy)"></i>Enemy</span>
+    <span><i class="dot" style="background:var(--item)"></i>Item</span>
+    <span><i class="dot" style="background:var(--data)"></i>Data(SO)</span>
+    <span><i class="dot" style="background:var(--ui)"></i>UI</span>
+    <span><i class="dot" style="background:var(--ach)"></i>Achievement</span>
+    <span><i class="dot" style="background:var(--fire)"></i>Firebase</span>
+    <span><i class="dot" style="background:var(--ads)"></i>Ads</span>
+    <span><i class="dot" style="background:var(--old)"></i>Legacy</span>
+  </div>
+
+  <div class="layers" id="layerGrid"></div>
+</section>
+
+<!-- ============ PATTERNS ============ -->
+<section id="patterns">
+  <h2>적용된 디자인 패턴 <span class="desc">- 코드에서 식별된 패턴들</span></h2>
+  <div class="patterns" id="patternGrid"></div>
+</section>
+
+<!-- ============ PROS ============ -->
+<section id="pros">
+  <h2>구조의 장점 <span class="desc">- 잘 설계된 부분</span></h2>
+  <div class="col pros" id="prosCol"></div>
+</section>
+
+<!-- ============ CONS ============ -->
+<section id="cons">
+  <h2>개선이 필요한 부분 <span class="desc">- 안티패턴 · 리팩토링 포인트</span></h2>
+  <div class="col cons" id="consCol"></div>
+</section>
+
+</main>
+
+<div id="detail">
+  <button class="close" onclick="document.getElementById('detail').classList.remove('show')">×</button>
+  <h4 id="dName"></h4>
+  <div class="path" id="dPath"></div>
+  <dl id="dBody"></dl>
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{
+  primaryColor:'#1e2330', primaryTextColor:'#e6e9ef', primaryBorderColor:'#7cc5ff',
+  lineColor:'#9099ad', fontFamily:'ui-monospace,Menlo,monospace'
+}});
+
+// ----- tabs -----
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById(b.dataset.tab).classList.add('active');
+});
+
+// ----- data -----
+const LAYERS = [
+  {key:'core', color:'var(--core)', name:'Game Core', desc:'게임 상태·생명주기·풀·오디오·시간', classes:[
+    {n:'GameFacade', f:'New/GameFacade.cs', tag:'facade', role:'Facade · Singleton', deps:'8개 매니저 보유', methods:'GameStart, GameOver, Get<T>, Return<T>'},
+    {n:'NewGameManager', f:'New/NewGameManager.cs', role:'State Manager', evt:'OnStop, OnResume, OnGameOver, OnGameVictory'},
+    {n:'NewPlayerManager', f:'New/NewPlayerManager.cs', role:'Player State Container', evt:'OnLevelup, OnHpChanged'},
+    {n:'NewItemManager', f:'New/NewItemManager.cs', role:'Item/Weapon Factory + Data', note:'데이터+인스턴스화 혼합'},
+    {n:'TimeManager', f:'New/TimeManager.cs', role:'Stage Timer', evt:'OnTimeUp'},
+    {n:'NewObjectPoolManager', f:'New/NewObjectPoolManager.cs', tag:'singleton', role:'Object Pool (Dictionary)'},
+    {n:'NewAudioManager', f:'New/NewAudioManager.cs', role:'BGM + 8ch SFX'},
+    {n:'NewUIManager', f:'UI/NewUIManager.cs', role:'UI Aggregator'},
+    {n:'LifeManager', f:'LifeManager.cs', role:'하트 시스템 + 재충전', evt:'OnLifeChanged, OnTimerChanged'},
+    {n:'PauseAndResume', f:'New/PauseAndResume.cs', role:'Pause 컨트롤러'},
+  ]},
+  {key:'player', color:'var(--player)', name:'Player & Combat', desc:'플레이어 입력·전투·무기·기어', classes:[
+    {n:'NewPlayer', f:'New/NewPlayer.cs', role:'Player Controller', note:'Input + Physics + 시각효과'},
+    {n:'NewCharacter', f:'New/NewCharacter.cs', role:'Static Stat Lookup', note:'⚠️ PlayerId switch 안티패턴'},
+    {n:'NewWeapon', f:'New/NewWeapon.cs', role:'Strategy (Melee/Range)', evt:'OnWeaponChanged'},
+    {n:'CatAttack', f:'New/CatAttack.cs', role:'Projectile / Hit', note:'클래스명 오타 CatAtack'},
+    {n:'Scanner', f:'New/Scanner.cs', role:'적 탐색 (CircleCast)'},
+    {n:'Gear', f:'New/Gear.cs', role:'Observer (속도/연사 버프)', evt:'OnApplyGear'},
+    {n:'MagnetPuller', f:'New/MagnetPuller.cs', role:'아이템 흡수 효과'},
+    {n:'FollowCM', f:'New/FollowCM.cs', role:'카메라 추적'},
+  ]},
+  {key:'enemy', color:'var(--enemy)', name:'Enemy', desc:'적 AI·이동·드롭', classes:[
+    {n:'NewEnemy', f:'New/NewEnemy.cs', role:'적 AI + 드롭 처리', note:'GameFacade 직접 호출'},
+  ]},
+  {key:'item', color:'var(--item)', name:'Items & Pickups', desc:'경험치·힐·자석 등 줍는 아이템', classes:[
+    {n:'NewPickupItemBase', f:'New/NewPickupItemBase.cs', role:'Template Method (추상)'},
+    {n:'ExpItem', f:'New/ExpItem.cs', role:'경험치 코인'},
+    {n:'NewHealItem', f:'New/NewHealItem.cs', role:'체력 회복'},
+    {n:'NewMagnetItem', f:'New/NewMagnetItem.cs', role:'자석 효과'},
+    {n:'NewItem', f:'New/NewItem.cs', role:'레벨업 메뉴 슬롯 View'},
+    {n:'NewPool', f:'New/NewPool.cs', role:'Queue 기반 풀 구현'},
+  ]},
+  {key:'data', color:'var(--data)', name:'Data (ScriptableObject)', desc:'런타임 데이터 정의', classes:[
+    {n:'CharacterSO', f:'CharacterSO.cs', tag:'so', role:'캐릭터 데이터'},
+    {n:'ItemData', f:'New/ItemData.cs', tag:'so', role:'아이템·무기 데이터'},
+    {n:'NewSpawnData', f:'New/NewSpawnData.cs', tag:'so', role:'스테이지별 스폰'},
+    {n:'NewPoolItemData', f:'New/NewPoolItemData.cs', tag:'so', role:'개별 풀 설정'},
+    {n:'PoolItemDataBase', f:'New/PoolItemDataBase.cs', tag:'so', role:'풀 컨테이너'},
+    {n:'CharacterUnlockCondition', f:'CharacterUnlockCondition.cs', role:'해금 조건 (Serializable)'},
+  ]},
+  {key:'ui', color:'var(--ui)', name:'UI', desc:'View · 모달 · 버튼', classes:[
+    {n:'NewLevelUpView', f:'UI/NewLevelUpView.cs', role:'레벨업 모달 (3선택)'},
+    {n:'NewResultView', f:'UI/NewResultView.cs', role:'결과 화면'},
+    {n:'SettingUI', f:'UI/SettingUI.cs', role:'설정 화면'},
+    {n:'HUD', f:'New/HUD.cs', role:'실시간 상태 표시'},
+    {n:'CharacterInfoView', f:'CharacterInfoView.cs', role:'캐릭터 선택 미리보기'},
+    {n:'LifeUIView', f:'LifeUIView.cs', role:'생명 + 타이머'},
+    {n:'StartGameButton', f:'StartGameButton.cs', role:'시작 버튼'},
+    {n:'ToggleButton', f:'ToggleButton.cs', role:'패널 토글'},
+    {n:'CharacterChoiceNextButton', f:'New/CharacterChoiceNextButton.cs', role:'캐릭터 페이지 이동'},
+  ]},
+  {key:'ach', color:'var(--ach)', name:'Achievement', desc:'업적·해금', classes:[
+    {n:'NewAchiveManager', f:'NewAchiveManager.cs', tag:'singleton', role:'해금 체크 + 토스트', note:'⚠️ 매 프레임 폴링'},
+    {n:'AchiveManager', f:'New/AchiveManager.cs', role:'(중복?)'},
+    {n:'LastCharacterCheat', f:'LastCharacterCheat.cs', role:'디버그용'},
+  ]},
+  {key:'fire', color:'var(--fire)', name:'Firebase Backend', desc:'랭킹·인증·문서', classes:[
+    {n:'FirebaseBootstrap', f:'Firebase/FirebaseBootstrap.cs', role:'초기화 + 익명 인증'},
+    {n:'PlayerService', f:'Firebase/PlayerService.cs', role:'players/{uid} CRUD'},
+    {n:'RankingService', f:'Firebase/RankingService.cs', role:'Top100 조회'},
+    {n:'RankingListController', f:'Firebase/RankingListController.cs', role:'MVP Presenter'},
+    {n:'RankingView', f:'Firebase/RankingView.cs', role:'개별 행 View'},
+    {n:'NicknamePanelController', f:'Firebase/NicknamePanelController.cs', role:'닉네임 입력'},
+    {n:'PlayerData', f:'Firebase/PlayerData.cs', role:'Firestore DTO'},
+    {n:'GameFlowExample', f:'Firebase/GameFlowExample.cs', role:'(예제 코드)'},
+  ]},
+  {key:'ads', color:'var(--ads)', name:'Advertisement', desc:'AdMob 연동', classes:[
+    {n:'Adsmanager', f:'Advertisement/Adsmanager.cs', tag:'singleton', role:'Interstitial + Rewarded', evt:'OnRewardGranted'},
+  ]},
+  {key:'old', color:'var(--old)', name:'Legacy (Old/)', desc:'리팩토링 전 구버전 — 제거 대상', classes:[
+    {n:'GameManager', f:'Old/GameManager.cs'},{n:'Player', f:'Old/Player.cs'},
+    {n:'Enemy', f:'Old/Enemy.cs'},{n:'Spawner', f:'Old/Spawner.cs'},
+    {n:'WeaponManager', f:'Old/WeaponManager.cs'},{n:'CatScratch', f:'Old/CatScratch.cs'},
+    {n:'PoolManager', f:'Old/PoolManager.cs'},{n:'Result', f:'Old/Result.cs'},
+    {n:'LevelUp', f:'Old/LevelUp.cs'},{n:'Item', f:'Old/Item.cs'},
+    {n:'DropItem', f:'Old/DropItem.cs'},{n:'Magnet', f:'Old/Magnet.cs'},
+    {n:'Character', f:'Old/Character.cs'},{n:'AudioManager', f:'Old/AudioManager.cs'},
+  ]},
+];
+
+const PATTERNS = [
+  {name:'Facade', badge:'good', where:'GameFacade.cs',
+    desc:'8개 매니저(GameManager, PlayerManager, ItemManager, TimeManager, AudioManager, PoolManager, UIManager, LifeManager)를 단일 진입점으로 묶어 외부 호출자(UI, Item, Enemy)가 매니저 내부를 모르게 함.',
+    ex:'GameFacade.Instance.PlayerExpAdd(amount);\nGameFacade.Instance.Get<EnemyEnumId>(EnemyEnumId.Bird);'},
+  {name:'Singleton', badge:'warn', where:'GameFacade · NewObjectPoolManager · NewAchiveManager · Adsmanager',
+    desc:'4개 클래스가 public static Instance 패턴 사용. Facade에 통합되면 좋지만 PoolManager·AchiveManager·Adsmanager는 별도 진입점 유지.',
+    ex:'public static GameFacade Instance { get; private set; }\nvoid Awake() { Instance = this; }'},
+  {name:'Object Pool', badge:'good', where:'NewObjectPoolManager + NewPool',
+    desc:'Dictionary<Enum, NewPool> 구조로 적·무기·아이템 풀을 enum 키로 O(1) 접근. 기존 List 인덱스 기반(O(n)) 구조에서 개선됨.',
+    ex:'Dictionary<EnemyEnumId, NewPool> enemyPools;\nGameObject Get(EnemyEnumId key) => pool.poolQueue.Dequeue();'},
+  {name:'Observer (C# Event)', badge:'good', where:'Game/Player/Time Manager · Gear · Weapon · LifeManager · Ads',
+    desc:'event Action을 통한 발행/구독으로 UI·시스템 간 결합을 낮춤. HUD가 NewPlayerManager.OnHpChanged를 구독하는 식.',
+    ex:'public event Action<float,float> OnHpChanged;\nNewPlayerManager.OnHpChanged += view.SetHP;'},
+  {name:'Template Method', badge:'good', where:'NewPickupItemBase ← ExpItem/NewHealItem/NewMagnetItem',
+    desc:'추상 OnCollected()를 자식이 구현. 트리거 처리·중복 방지·풀 반환 같은 공통 로직은 부모가 담당.',
+    ex:'protected abstract void OnCollected();\n// ExpItem: GameFacade.PlayerExpAdd(expValue);'},
+  {name:'Strategy', badge:'good', where:'NewWeapon (Melee vs Range)',
+    desc:'weaponType에 따라 Batch()(회전 멜리)·Fire()(투사체) 동작이 갈림. Scanner와의 조합으로 ranged 동작 전략화.',
+    ex:'if (weaponType == Melee) Batch();\nelse Fire(scanner.nearestTarget);'},
+  {name:'ScriptableObject Data', badge:'good', where:'CharacterSO · ItemData · NewSpawnData · PoolItemData',
+    desc:'기획 데이터(스탯·드롭률·스폰)를 코드와 분리. 인스펙터에서 12종 캐릭터를 자산으로 관리 → 빌드 없이 밸런스 가능.',
+    ex:'[CreateAssetMenu(menuName="CatSurvival/Character")]\npublic class CharacterSO : ScriptableObject { ... }'},
+  {name:'MVP (부분 적용)', badge:'warn', where:'RankingListController + RankingView, HUD',
+    desc:'랭킹 화면은 Controller(데이터 로드) ↔ View(Bind) 가 분리되어 깔끔. 다만 LevelUpView·ResultView는 GameFacade를 직접 호출 → MVP 미완성.',
+    ex:'RankingListController.LoadAndRenderAsync() → foreach { Instantiate(rankingPrefab).Bind(...) }'},
+  {name:'Service Layer', badge:'good', where:'PlayerService · RankingService',
+    desc:'Firebase 호출을 MonoBehaviour가 아닌 순수 C# 클래스로 분리. async/await 기반, Firestore 트랜잭션으로 최고 점수 갱신.',
+    ex:'await dbRef.Document(uid).UpdateAsync(...);\nawait RankingService.LoadTop100Async();'},
+  {name:'Bootstrap', badge:'good', where:'FirebaseBootstrap',
+    desc:'앱 시작 시 Firebase 의존성 체크·익명 인증·Db 참조 캐싱을 한 곳에서 처리. 정적 프로퍼티 Auth/Db/Uid로 노출.',
+    ex:'await FirebaseApp.CheckAndFixDependenciesAsync();\nAuth = FirebaseAuth.DefaultInstance;'},
+];
+
+const PROS = [
+  {t:'Facade로 게임 시스템 통합', d:'GameFacade가 8개 매니저를 캡슐화하여 외부에서는 한 곳만 호출하면 됨. 코드 가독성과 결합도 측면에서 큰 장점.', e:'GameFacade.Instance.PlayerExpAdd() / GameOver() / Get<T>(key)'},
+  {t:'레이어 분리가 명확', d:'Core / Combat / Enemy / Item / UI / Firebase / Ads 가 폴더와 책임 모두에서 깔끔히 구분. 새 기능 추가 시 어디에 둘지 명확.', e:'Assets/02_Scripts/{New, UI, Firebase, Advertisement, Old}'},
+  {t:'ScriptableObject 데이터 파이프라인', d:'12종 캐릭터, 아이템, 스폰 데이터를 .asset 파일로 분리. 기획자도 인스펙터로 수정 가능하고 빌드 없이 밸런싱 가능.', e:'CharacterSO · ItemData · NewSpawnData · PoolItemDataBase'},
+  {t:'Dictionary 기반 Object Pool', d:'enum을 키로 사용해 O(1) 접근. 적/무기/아이템 풀을 타입별로 관리하고, 풀별 초기·최대 사이즈를 SO로 설정.', e:'Dictionary<EnemyEnumId, NewPool> enemyPools;'},
+  {t:'이벤트 기반 통신', d:'C# event Action으로 UI ↔ 게임 로직 결합도를 낮춤. HUD가 매 프레임 폴링 대신 변경 시점에만 갱신.', e:'OnLevelup, OnHpChanged, OnTimeUp, OnWeaponChanged, OnApplyGear'},
+  {t:'Template Method로 아이템 확장 용이', d:'NewPickupItemBase를 상속해 OnCollected만 구현하면 새 픽업 추가 가능. 공통 코드(쿨다운·풀 반납·중복 방지)는 부모가 책임.', e:'class ExpItem : NewPickupItemBase { override OnCollected() {...} }'},
+  {t:'Firebase Service 계층 분리', d:'PlayerService / RankingService를 순수 C# 클래스로 분리, async/await 사용. Unity Lifecycle과 무관해 테스트·재사용 용이.', e:'await PlayerService.UpdateBestKillsIfHigherAsync(uid, kills);'},
+  {t:'Strategy 패턴으로 무기 분기', d:'NewWeapon.weaponType에 따라 Melee 회전 / Range 발사를 분기. Scanner와 결합하여 가장 가까운 적 자동 타겟팅.', e:'weaponType == Melee ? Batch() : Fire(scanner.nearestTarget)'},
+  {t:'생명·광고 통합 시스템', d:'LifeManager가 PlayerPrefs + DateTime으로 재충전을 관리하고, Adsmanager.OnRewardGranted를 구독해 광고 보상으로 생명 회복.', e:'Adsmanager.Instance.OnRewardGranted += life.AddLife;'},
+];
+
+const CONS = [
+  {t:'"New*" 접두사 — 리팩토링 흔적', d:'NewGameManager·NewPlayer·NewWeapon… 대부분에 New가 붙어 있고 Old/ 폴더가 병행 존재. 코드 양이 사실상 2배.', e:'Old/GameManager.cs ↔ New/NewGameManager.cs', fix:'New/ → 폴더 평탄화하고 접두사 제거, Old/ 전체 삭제'},
+  {t:'GameFacade.Instance 정적 의존성', d:'거의 모든 게임 클래스(Enemy·Item·UI)가 GameFacade.Instance를 직접 호출 → 유닛 테스트 불가능, 씬 격리 어려움.', e:'GameFacade.Instance.PlayerTakeDamage(d) — 60+ 호출 지점', fix:'필요한 매니저를 인터페이스로 추상화하고 SerializeField로 주입(DI)'},
+  {t:'NewCharacter의 PlayerId switch 안티패턴', d:'캐릭터 스탯 배율이 정적 switch로 하드코딩. 새 캐릭터 추가 시 코드 수정 + 빌드 필요. CharacterSO와 책임 중복.', e:'static float Speed { get { switch(PlayerId) { case 0: return 1f; ... }}}', fix:'CharacterSO에 speedMultiplier 등 필드를 두고 NewCharacter 클래스 삭제'},
+  {t:'네이밍 오류', d:'클래스명·필드명 오타가 여럿. 영문 비원어민이라도 PR 리뷰가 필요한 수준. 면접 코드 리뷰 시 감점 요인.', e:'CatAtack (Attack 오타) · NewAchiveManager (Achieve) · prefebs[] (prefabs) · CheackAndUnlock (Check)', fix:'IDE 일괄 Rename Symbol로 한번에 정리'},
+  {t:'NewItemManager의 책임 과다', d:'아이템 데이터 보관(Data Repository) + 무기/기어 인스턴스 생성(Factory) + 레벨업 선택 처리(Selector)가 한 클래스에 집중.', e:'class NewItemManager { ItemData[] datas; NewWeapon[] weapons; SelectItem(idx) }', fix:'ItemRepository(SO) + WeaponFactory + LevelUpController로 분리'},
+  {t:'NewAchiveManager 매 프레임 폴링', d:'CheackAndUnlock()이 Update에서 매 프레임 모든 캐릭터의 해금 조건을 검사. 12종 × 매 프레임 = 낭비.', e:'void Update() { CheackAndUnlock(); }', fix:'NewPlayerManager.OnLevelup / OnKillChanged 이벤트 구독으로 변경 시점만 체크'},
+  {t:'MVP 불완전 적용', d:'설계 문서에는 HUDView/HUDPresenter 분리가 있지만 실제 HUD는 매니저를 직접 참조. LevelUpView도 GameFacade.SelectItem 직접 호출.', e:'view → GameFacade.Instance.X (Presenter 없음)', fix:'Presenter 클래스를 도입하거나 View가 IGameEvents만 알도록 추상화'},
+  {t:'중복 클래스 (AchiveManager / NewAchiveManager)', d:'유사 이름·유사 책임 클래스가 동시 존재. 어느 쪽이 실제 사용되는지 불명확.', e:'New/AchiveManager.cs ↔ NewAchiveManager.cs (루트)', fix:'사용처 grep 후 하나만 남기고 삭제'},
+  {t:'이벤트 구독 해제 누락 위험', d:'static event는 자동 해제 안 됨. OnDestroy에서 -= 누락 시 다음 씬 재시작 때 중복 호출/메모리 누수.', e:'GameManager.OnHPChanged += view.SetHP; // -= 잊으면 누적', fix:'OnEnable/OnDisable 쌍으로 구독·해제, 또는 EventBus 도입'},
+  {t:'풀 키가 enum 3개로 파편화', d:'EnemyEnumId / WeaponEnumId / ItemEnumId 세 enum + 3개의 Dictionary로 분리되어 Get/Return 오버로드가 늘어남.', e:'Get(EnemyEnumId) / Get(WeaponEnumId) / Get(ItemEnumId)', fix:'문자열 키 또는 통합 PoolKey enum 하나 + 단일 Dictionary'},
+  {t:'폴더 구조와 실제 위치 불일치', d:'설계 문서는 Scripts/Core, Scripts/Character … 인데 실제는 02_Scripts/New, 02_Scripts/UI … . CharacterSO·LifeManager가 루트에 흩어져 있음.', e:'CharacterSO.cs · LifeManager.cs · NewAchiveManager.cs → 02_Scripts/ 루트', fix:'설계 문서대로 Core/Player/UI/Data 폴더로 재편'},
+  {t:'Old/ 폴더의 dead code', d:'14개 레거시 클래스가 남아 빌드 컴파일 시간만 증가. New가 안정화됐다면 삭제 필요.', e:'Old/ — GameManager · Player · Enemy · Spawner …', fix:'New/가 완전 대체 확인 후 Old/ 폴더 통째 git rm'},
+];
+
+// ----- render layers -----
+const grid = document.getElementById('layerGrid');
+LAYERS.forEach(l=>{
+  const div = document.createElement('div');
+  div.className='layer'; div.style.setProperty('--ly', l.color);
+  div.innerHTML = `<h4><span>${l.name}</span><span style="font-size:11px;color:var(--muted)">${l.classes.length}개</span></h4>
+    <div class="summary">${l.desc}</div>
+    <div class="classes">${l.classes.map(c=>{
+      const cls = 'cls' + (c.tag==='singleton'?' singleton':'') + (c.tag==='so'?' so':'') + (c.tag==='facade'?' facade':'');
+      return `<span class="${cls}" style="--ly:${l.color}" data-cls='${JSON.stringify(c).replace(/'/g,"&apos;")}'>${c.n}</span>`;
+    }).join('')}</div>`;
+  grid.appendChild(div);
+});
+
+// ----- render patterns -----
+const pg = document.getElementById('patternGrid');
+PATTERNS.forEach(p=>{
+  const d = document.createElement('div'); d.className='pcard';
+  d.innerHTML = `<h4>${p.name} <span class="badge ${p.badge}">${p.badge==='good'?'적용됨':'부분/주의'}</span></h4>
+    <div class="where">${p.where}</div>
+    <p>${p.desc}</p>
+    <div class="ex">${p.ex}</div>`;
+  pg.appendChild(d);
+});
+
+// ----- render pros/cons -----
+function renderItems(host, arr, klass){
+  arr.forEach(i=>{
+    const d=document.createElement('div'); d.className='item';
+    d.innerHTML = `<div class="t ${klass}">${i.t}</div>
+      <div class="d">${i.d}</div>
+      <div class="e">${i.e}</div>
+      ${i.fix?`<div class="fix">${i.fix}</div>`:''}`;
+    host.appendChild(d);
+  });
+}
+renderItems(document.getElementById('prosCol'), PROS, 'g');
+renderItems(document.getElementById('consCol'), CONS, 'b');
+
+// ----- class detail panel -----
+document.querySelectorAll('.cls').forEach(el=>{
+  el.onclick=()=>{
+    const c = JSON.parse(el.dataset.cls.replace(/&apos;/g,"'"));
+    document.getElementById('dName').textContent = c.n;
+    document.getElementById('dPath').textContent = 'Assets/02_Scripts/' + c.f;
+    const dl = document.getElementById('dBody'); dl.innerHTML='';
+    const add=(k,v)=>{if(v) dl.innerHTML += `<dt>${k}</dt><dd>${v}</dd>`};
+    add('역할', c.role);
+    add('주요 메서드', c.methods);
+    add('이벤트', c.evt);
+    add('의존성', c.deps);
+    add('비고', c.note);
+    document.getElementById('detail').classList.add('show');
+  };
+});
+</script>
+</body>
+</html>
