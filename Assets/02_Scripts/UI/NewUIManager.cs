@@ -8,6 +8,7 @@ public class NewUIManager : MonoBehaviour
     public NewResultView uiResult;
     public NewLevelUpView uiLevelUp;
     public PauseAndResume pauseAndResume;
+
     
     public void Win()
     {

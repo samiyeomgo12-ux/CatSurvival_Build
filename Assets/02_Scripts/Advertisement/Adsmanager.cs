@@ -1,10 +1,11 @@
 using UnityEngine;
 using GoogleMobileAds.Api;
 using System;
+using System.Collections;
 using System.Runtime.InteropServices;
-public class Adsmanager : MonoBehaviour
+public class AdsManager : MonoBehaviour
 {
-    public static Adsmanager Instance;
+    public static AdsManager Instance;
 
     private InterstitialAd interstitial;
     private RewardedAd rewarded;
@@ -14,11 +15,15 @@ public class Adsmanager : MonoBehaviour
     [SerializeField]private string rewardedId = "ca-app-pub-5694177053797182/5673538277";
     [SerializeField]private string testInterstitialId = "ca-app-pub-3940256099942544/1033173712";
     [SerializeField]private string testRewardedId = "ca-app-pub-3940256099942544/5224354917";
-
+    [SerializeField] private float reloadInitialDelay = 2f;
+    [SerializeField] private float reloadMaxDelay = 60f;
+    private float rewardedReloadDelay;
+    private float interstitialReloadDelay;
     public bool IsRewardedReady => rewarded != null && rewarded.CanShowAd();
     public bool IsInterstitialReady => interstitial != null && interstitial.CanShowAd();
     private Action pendingInterstitialClosedCallback;
     public event Action<int> OnRewardGranted;
+    public event Action OnRewardedNotReady;
 
     private void Awake()
     {
@@ -50,16 +55,17 @@ public class Adsmanager : MonoBehaviour
         AdRequest request = new AdRequest();
 
         InterstitialAd.Load(
-        interstitialId,
+        testInterstitialId,
         request,
         (InterstitialAd ad, LoadAdError error) =>
         {
             if (error != null || ad == null)
             {
                 Debug.Log("Interstitial load failed");
+                InterstitialReload();
                 return;
             }
-
+            interstitialReloadDelay = 0;
             interstitial?.Destroy();
             interstitial = ad;
 
@@ -102,16 +108,18 @@ public class Adsmanager : MonoBehaviour
         AdRequest request = new AdRequest();
 
         RewardedAd.Load(
-            rewardedId, 
+            testRewardedId, 
             request, 
             (RewardedAd ad, LoadAdError error) =>
         {
             if (error != null || ad == null)
             {
                 Debug.LogWarning($"Rewarded load failed: {error}");
+                RewardedReload();
                 return;
             }
 
+            rewardedReloadDelay = 0;
             rewarded?.Destroy();
             rewarded = ad;
 
@@ -132,9 +140,14 @@ public class Adsmanager : MonoBehaviour
         });
     }
 
+  
     public void ShowRewarded()
     {
-        if (!IsRewardedReady) return;
+        if (!IsRewardedReady)
+        {
+            OnRewardedNotReady?.Invoke(); //광고 없음 사실 알림
+            return;
+        }
 
         rewarded.Show((Reward reward) =>
         {
@@ -143,7 +156,27 @@ public class Adsmanager : MonoBehaviour
         });
     }
 
-    
+    private void InterstitialReload()
+    {
+        interstitialReloadDelay = interstitialReloadDelay <= 0 ?
+            reloadInitialDelay : Mathf.Min(interstitialReloadDelay * 2f, reloadMaxDelay);
+
+        StartCoroutine(ReloadAfter(interstitialReloadDelay, LoadInterstitial));
+    }
+    private void RewardedReload()
+    {
+        rewardedReloadDelay = rewardedReloadDelay <= 0 ?
+            reloadInitialDelay : Mathf.Min(rewardedReloadDelay * 2f, reloadMaxDelay);
+
+        StartCoroutine(ReloadAfter(rewardedReloadDelay, LoadRewarded));
+    }
+
+    private IEnumerator ReloadAfter(float delay, Action loader)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        loader();
+    }
+
     public void GiveReward()
     {
         OnRewardGranted?.Invoke(1); 

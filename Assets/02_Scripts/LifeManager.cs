@@ -48,23 +48,23 @@ public class LifeManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if (Adsmanager.Instance != null)
-            Adsmanager.Instance.OnRewardGranted += HandleReward;
+        if (AdsManager.Instance != null)
+            AdsManager.Instance.OnRewardGranted += HandleReward;
     }
 
     private void OnDisable()
     {
-        if(Adsmanager.Instance != null)
-            Adsmanager.Instance.OnRewardGranted -= HandleReward;
+        if(AdsManager.Instance != null)
+            AdsManager.Instance.OnRewardGranted -= HandleReward;
     }
 
 
     private void TrySubscribeAdsReward()
     {
-        if (Adsmanager.Instance != null)
+        if (AdsManager.Instance != null)
         {
-            Adsmanager.Instance.OnRewardGranted -= HandleReward;
-            Adsmanager.Instance.OnRewardGranted += HandleReward;
+            AdsManager.Instance.OnRewardGranted -= HandleReward;
+            AdsManager.Instance.OnRewardGranted += HandleReward;
         }
     }
     private void HandleReward(int amount)

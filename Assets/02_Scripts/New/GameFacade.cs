@@ -16,6 +16,7 @@ public class GameFacade : MonoBehaviour
     [SerializeField] private NewAudioManager audioManager;
     [SerializeField] private NewItemManager itemManager;
     [SerializeField] private LifeManager lifeManager;
+    [SerializeField] private AdsManager adsManager;
 
     public bool IsLive => gameManager.isLive;
     public float GameTime => timeManager.GameTime;
@@ -29,6 +30,8 @@ public class GameFacade : MonoBehaviour
     public int Kill => playerManager.Kill;
     public NewPlayerManager NewPM => playerManager;
     public LifeManager LifeManager => lifeManager;
+
+    public AdsManager AdsManager => adsManager; 
     public CharacterSO CurrentCharacter => playerManager.CharacterData;
 
     private void Awake()
@@ -137,9 +140,9 @@ public class GameFacade : MonoBehaviour
             Debug.Log("하트 차감 실패");
             return;
         }
-        if(Adsmanager.Instance != null)
+        if(AdsManager.Instance != null)
         {
-            Adsmanager.Instance.ShowInterstitial(() =>
+            AdsManager.Instance.ShowInterstitial(() =>
             {
                 gameManager.GameRetry();
                 audioManager.PlayBgm(false);
@@ -153,9 +156,9 @@ public class GameFacade : MonoBehaviour
     }
     public void GameRetry()
     {
-        if(Adsmanager.Instance != null)
+        if(AdsManager.Instance != null)
         {
-            Adsmanager.Instance.ShowInterstitial(() =>
+            AdsManager.Instance.ShowInterstitial(() =>
             {
                 gameManager.GameRetry();
                 audioManager.PlayBgm(false);

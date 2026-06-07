@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +12,8 @@ public class LifeUIView : MonoBehaviour
     [SerializeField] Sprite lockHearts;
     [SerializeField] Text timerText;
     [SerializeField] GameObject[] chracterGroups;
+    [SerializeField] GameObject notReadyInfoText;
+    [SerializeField] private float infoDuration = 1f;
 
     private void Start()
     {
@@ -27,6 +31,9 @@ public class LifeUIView : MonoBehaviour
         if(GameFacade.Instance == null) return;
         GameFacade.Instance.LifeManager.OnLifeChanged += RefreshHearts;
         GameFacade.Instance.LifeManager.OnTimerChanged += RefreshTimer;
+        if(GameFacade.Instance.AdsManager != null)
+        GameFacade.Instance.AdsManager.OnRewardedNotReady += HandleAdNotReady;
+        
 
         RefreshHearts(GameFacade.Instance.LifeManager.CurrentLife);
         RefreshTimer(GameFacade.Instance.LifeManager.GetRemainingTime());
@@ -37,6 +44,8 @@ public class LifeUIView : MonoBehaviour
         if (GameFacade.Instance == null) return;
         GameFacade.Instance.LifeManager.OnLifeChanged -= RefreshHearts;
         GameFacade.Instance.LifeManager.OnTimerChanged -= RefreshTimer;
+        if(GameFacade.Instance.AdsManager != null)
+        GameFacade.Instance.AdsManager.OnRewardedNotReady -= HandleAdNotReady;
     }
 
     private void RefreshHearts(int currentLife)
@@ -72,5 +81,15 @@ public class LifeUIView : MonoBehaviour
         timerText.text = $"{remain.Minutes:D2}:{remain.Seconds:D2}";
     }
 
+    private void HandleAdNotReady()
+    {
+       StartCoroutine(ShowInfoText());
+    }
 
+    private IEnumerator ShowInfoText()
+    {
+        notReadyInfoText.SetActive(true);
+        yield return new WaitForSeconds(infoDuration);
+        notReadyInfoText.SetActive(false);
+    }
 }
